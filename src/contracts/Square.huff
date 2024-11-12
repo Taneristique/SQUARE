@@ -1,0 +1,73 @@
+#define function square(uint256) nonpayable returns(uint256)
+#define error willOverflow() 
+
+#define macro MAIN() = takes(0) returns(0){
+    0x0                     //[0x0]
+    calldataload            //[calldata]
+    0xe0                    //[0xe0,calldata]
+    shr                     //[function_signature]
+    __FUNC_SIG(square)        //[__FUNC_SIG(square),function_signature]
+    eq                      //[__FUNC_SIG(square) == function_signature]
+    SQUARE                  //[SQUARE, __FUNC_SIG(square) == function_signature]
+    jumpi                   //[]
+    /*Revert if function signature is not 0x62263654 equally __FUNC_SIG(square)*/
+    0x0                     //[0x0]
+    0x0                     //[0x0,0x0]
+    revert                  //[]
+
+    SQUARE:
+        CalculateSquare()   //[]
+
+}
+
+#define macro CalculateSquare() = takes(0) returns(1){
+    0xffffffffffffffffffffffffffffffff             //[0xffffffffffffffffffffffffffffffff]
+    dup1                                           //[0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    0x04                                           //[0x04,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    calldataload                                   //[raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    0x04                                           //[0x04,raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    calldatasize                                   //[calldatasize,0x04,raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    sub                                            //[calldatasize-0x04,raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    0x08                                           //[0x08,calldatasize-0x04,raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    mul                                            //[bits_of_parameter,raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    0xf8                                           //[0xf8,bits_of_parameter,raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    sub                                            //[0xf8 - bits_of_parameter,raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    0x08                                           //[0x08,0xf8 - bits_of_parameter,raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    add                                            //[0x08+0xf8 - bits_of_parameter,raw_parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    shr                                            //[parameter, 0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    dup1                                           //[parameter, parameter,0xffffffffffffffffffffffffffffffff,0xffffffffffffffffffffffffffffffff]
+    swap2                                          //[0xffffffffffffffffffffffffffffffff,parameter, parameter,0xffffffffffffffffffffffffffffffff]
+    gt                                             //[0xffffffffffffffffffffffffffffffff > parameter, 0xffffffffffffffffffffffffffffffff,parameter]
+    CALCULATE                                      //[CALCULATE,0xffffffffffffffffffffffffffffffff > parameter, parameter,0xffffffffffffffffffffffffffffffff]
+    jumpi                                          //[parameter,0xffffffffffffffffffffffffffffffff]
+    dup2                                           //[0xffffffffffffffffffffffffffffffff, parameter, 0xffffffffffffffffffffffffffffffff]
+    eq                                             //[0xffffffffffffffffffffffffffffffff == parameter, parameter]
+    CALCULATE_EQ                                   //[CALCULATE, 0xffffffffffffffffffffffffffffffff == parameter, parameter]
+    jumpi                                          //[parameter]
+    /*revert if 0xffffffffffffffffffffffffffffffff<parameter*/
+    __ERROR(willOverflow)       //[__ERROR(willOverflow),parameter]
+    0x0                         //[0x0,__ERROR(willOverflow),parameter]
+    mstore                      //[parameter]
+    0x04                        //[0x04,parameter]
+    0x0                         //[0x0,0x04,parameter]
+    revert                      //[parameter]
+
+    CALCULATE:
+        dup1              //[parameter,parameter,0xffffffffffffffffffffffffffffffff]
+        mul               //[parameter * parameter,0xffffffffffffffffffffffffffffffff]
+        0x0               //[0x0,parameter * parameter,0xffffffffffffffffffffffffffffffff]
+        mstore            //[0xffffffffffffffffffffffffffffffff]
+        pop               //[]
+        0x20              //[0x20]
+        0x0               //[0,0x20]
+        return            //[]
+
+    CALCULATE_EQ:
+        dup1              //[parameter,parameter]
+        mul               //[parameter * parameter]
+        0x0               //[0x0,parameter * parameter]
+        mstore 
+        0x20              //[0x20]
+        0x0               //[0,0x20]
+        return            //[]
+}
